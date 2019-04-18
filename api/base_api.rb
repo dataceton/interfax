@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class BaseApi < Sinatra::Base
   register Sinatra::Reloader
   register Sinatra::ConfigFile

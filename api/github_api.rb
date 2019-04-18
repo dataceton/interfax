@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'github_client'
 require 'serializers/user_serializer'
 require 'serializers/repo_serializer'
