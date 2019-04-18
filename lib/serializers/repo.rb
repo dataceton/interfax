@@ -2,33 +2,27 @@ module Serializers
   class Repo < Base
     def initialize(data, root_key)
       super(root_key)
-      @data = data
+      @repo = data['repository']
     end
     
     def call
-      user_name = @data['user']['name']
-      user_repos = @data[]
+      repo_name = @repo['name']
+      commits = @repo.dig('ref', 'target', 'history', 'edges') || []
 
-      if user_data = @data['data']
-        user_name = user_data['user']['name']
-        user_repos = user_data['user']['repositories']['nodes']
-
-        user = {
-          user: {
-            name: user_name
-          },
-          repositories: []
+      repo = {
+        repo: {
+          name: repo_name,
+          commits: []
         }
+      }
 
-        user_repos.each do |repo|
-          user[:repositories] << {
-            name: repo['name'],
-            created_at: repo['createdAt']
-          }
-        end
 
-        { response: user }
+      commits.each do |commit|
+        cm_node = commit['node']
+        repo[:repo][:commits] << { message: cm_node['message'], created_at: cm_node['committedDate'] }
       end
+
+      with_root repo
     end
   end
 end

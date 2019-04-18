@@ -27,7 +27,29 @@ class GithubClient
       end
 
       def get_user_repo(user, repo)
+        query = <<~GRAPHQL.gsub(/\n/, '')
+          query {
+            repository(owner: #{user}, name: #{repo}) {
+              name
+              ref(qualifiedName: "master") {
+                target {
+                  ... on Commit {
+                    history(first: 10) {
+                      edges {
+                        node {
+                          message
+                          committedDate
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        GRAPHQL
         
+        send_request(query: query)
       end
 
 
@@ -36,10 +58,9 @@ class GithubClient
       def send_request(params = {})
         response = @connection.post do |req|
           req.headers['Authorization'] = "bearer #{@auth_token}"
-          # req.headers['Content-Type'] = 'application/json'
           req.body = params.to_json
         end
 
-        JSON.parse response.body
+        JSON.parse(response.body)
       end
 end
