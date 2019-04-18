@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 require 'github_client'
-require 'serializers/user_serializer'
-require 'serializers/repo_serializer'
+require 'serializers'
 
 class GithubApi < BaseApi
 
@@ -15,21 +14,20 @@ class GithubApi < BaseApi
   namespace '/v4' do
     get '/user/:login' do
       response = client.get_user(params[:login])
-
-      if response[:errors].blank?
-        json UserSerializer.new(response[:data]).call
-      else
-        json ErrorSerializer.new(response).call
+      if response['data']
+        json Serializers::User.new(response['data'], :response).call
+      elsif response['errors']
+        json Serializers::Error.new(response['errors'], :response).call
       end
     end
 
     get '/user/:login/:repo' do
       response = client.get_user_repo(params[:login], params[:repo])
       
-      if response[:errors].blank?
-        json UserSerializer.new(response[:data]).call
-      else
-        json ErrorSerializer.new(response).call
+      if response['data']
+        json Serializers::Repo.new(response['data'], :response).call
+      elsif response['errors']
+        json Serializers::Error.new(response['errors'], :response).call
       end
     end
   end
