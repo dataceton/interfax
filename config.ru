@@ -1,10 +1,6 @@
-require 'rubygems'
-require 'bundler'
-
-Bundler.require
-
 $LOAD_PATH.push File.expand_path("../lib", __FILE__)
 
-require "github_api"
+require File.expand_path(File.join('config', 'application'))
 
-map('/') { run GithubApi::Base }
+map('/') { run BaseApi }
+map ('/api') { run GithubApi }
